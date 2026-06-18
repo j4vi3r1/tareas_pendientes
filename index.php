@@ -37,7 +37,7 @@
 
     <section class="mt-4">
         <h2>Mockup de la Interfaz</h2>
-        <img src="mockup.png" alt="Diseño de interfaz" class="img-fluid border shadow">
+        <img src="mockup.jpg" alt="Diseño de interfaz" class="img-fluid border shadow" style="width: 3000px; height: auto;">
     </section>
 
 </body>
