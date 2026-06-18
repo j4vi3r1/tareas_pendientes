@@ -16,7 +16,6 @@
             <li>Ricardo González</li>
             <li>Monserrat Palma</li>
             <li>Javier Quezada</li>
-            <li>Felipe Rogel</li>
         </ul>
     </section>
 
@@ -35,6 +34,18 @@
         </ul>
     </section>
 
+    <section class="mt-4">
+        <h2>Estructura de la Base de Datos</h2>
+        <p>La aplicación utiliza <strong>SQLite</strong> para la persistencia de datos. La estructura se genera automáticamente mediante el archivo <code>db.php</code>.</p>
+        
+        <h3>Esquema de la tabla 'tareas'</h3>
+        <ul>
+            <li><strong>id</strong>: <code>INTEGER</code> (Primary Key, Autoincremental)</li>
+            <li><strong>nombre</strong>: <code>TEXT</code> (No permite valores nulos, almacena el contenido de la tarea)</li>
+            <li><strong>estado</strong>: <code>TEXT</code> (Valor por defecto: 'pendiente', almacena el status de la tarea)</li>
+        </ul>
+    </section>
+    
     <section class="mt-4">
         <h2>Mockup de la Interfaz</h2>
         <img src="mockup.jpg" alt="Diseño de interfaz" class="img-fluid border shadow" style="width: 3000px; height: auto;">
