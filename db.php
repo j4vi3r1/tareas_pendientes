@@ -8,6 +8,7 @@ try {
         nombre TEXT NOT NULL,
         estado TEXT DEFAULT 'pendiente'
     )");
+    return $db; // <--- AGREGAR ESTO
 } catch (PDOException $e) {
     die("Error al conectar: " . $e->getMessage());
 }

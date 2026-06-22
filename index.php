@@ -1,54 +1,62 @@
-<?php require_once 'db.php'; ?>
+<?php 
+// index.php
+// Importamos la conexión a la base de datos
+$db = require_once 'db.php'; 
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proyecto CRUD - Gestión de Tareas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="container mt-5">
 
-    <h1 class="text-primary">Proyecto: Lista de tareas pendientes</h1>
+    <h1 class="text-primary text-center">Mi Gestor de Tareas</h1>
 
-    <section class="mt-4">
+    <form action="process.php" method="POST" class="row g-3 mt-4 justify-content-center">
+        <div class="col-auto w-75">
+            <input type="text" name="nombre" class="form-control" placeholder="Ej: Comprar pan para la once..." required>
+        </div>
+        <div class="col-auto">
+            <button type="submit" name="agregar" class="btn btn-primary">Añadir Tarea</button>
+        </div>
+    </form>
+
+    <h2 class="mt-5">Tus Pendientes</h2>
+    <table class="table table-hover mt-3">
+        <tbody>
+            <?php
+            // Consultamos las tareas ordenadas por ID de forma descendente
+            $stmt = $db->query("SELECT * FROM tareas ORDER BY id DESC");
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $estado = $row['estado']; // 'pendiente' o 'completada'
+                $icono = ($estado == 'completada') ? '✅' : '⏳';
+                $btn_txt = ($estado == 'completada') ? 'Desmarcar' : 'Completar';
+                $color_boton = ($estado == 'completada') ? 'btn-success' : 'btn-warning';
+                
+                echo "<tr>
+                    <td class='align-middle'>$icono " . htmlspecialchars($row['nombre']) . "</td>
+                    <td class='text-end'>
+                        <a href='editar.php?id={$row['id']}' class='btn btn-sm btn-outline-primary'>Editar</a>
+                        <a href='process.php?cambiar_estado={$row['id']}&estado={$estado}' class='btn btn-sm $color_boton'>$btn_txt</a>
+                        <a href='process.php?eliminar={$row['id']}' class='btn btn-sm btn-outline-danger'>Eliminar</a>
+                    </td>
+                </tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+
+    <hr class="mt-5">
+    <section>
         <h2>Integrantes:</h2>
         <ul>
             <li>Ricardo González</li>
             <li>Monserrat Palma</li>
             <li>Javier Quezada</li>
         </ul>
-    </section>
-
-    <section class="mt-4">
-        <h2>Descripción de la Aplicación</h2>
-        <p>Aplicación web dinámica para la gestión de pendientes, permitiendo al usuario crear, listar, modificar y eliminar tareas de forma eficiente mediante una base de datos persistente.</p>
-    </section>
-
-    <section class="mt-4">
-        <h2>Operaciones CRUD</h2>
-        <ul>
-            <li><strong>Create:</strong> Formulario para añadir nuevas tareas.</li>
-            <li><strong>Read:</strong> Visualización de la lista completa desde la base de datos.</li>
-            <li><strong>Update:</strong> Cambio de estado (pendiente/completado) o edición de nombre.</li>
-            <li><strong>Delete:</strong> Eliminación definitiva de registros.</li>
-        </ul>
-    </section>
-
-    <section class="mt-4">
-        <h2>Estructura de la Base de Datos</h2>
-        <p>La aplicación utiliza <strong>SQLite</strong> para la persistencia de datos. La estructura se genera automáticamente mediante el archivo <code>db.php</code>.</p>
-        
-        <h3>Esquema de la tabla 'tareas'</h3>
-        <ul>
-            <li><strong>id</strong>: <code>INTEGER</code> (Primary Key, Autoincremental)</li>
-            <li><strong>nombre</strong>: <code>TEXT</code> (No permite valores nulos, almacena el contenido de la tarea)</li>
-            <li><strong>estado</strong>: <code>TEXT</code> (Valor por defecto: 'pendiente', almacena el status de la tarea)</li>
-        </ul>
-    </section>
-    
-    <section class="mt-4">
-        <h2>Mockup de la Interfaz</h2>
-        <img src="mockup.jpg" alt="Diseño de interfaz" class="img-fluid border shadow" style="width: 3000px; height: auto;">
     </section>
 
 </body>
