@@ -21,7 +21,8 @@ session_start();
         <p class="lead">Organiza tu día de forma eficiente y segura.</p>
         
         <?php if(isset($_SESSION['user_id'])): ?>
-            <a href="tareas.php" class="btn btn-primary btn-lg">Ir a mis tareas</a>
+            <?php include 'menu.php'; ?>
+            
         <?php else: ?>
             <div class="mt-4">
                 <a href="login.php" class="btn btn-success btn-lg">Iniciar Sesión</a>
