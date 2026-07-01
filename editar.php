@@ -1,21 +1,29 @@
 <?php
+// editar.php
+require_once 'auth.php'; // Protege la página
 $db = require_once 'db.php';
 
-// Si recibimos un ID para editar
+$tarea = null;
+
+// Buscamos la tarea verificando que pertenezca al usuario
 if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $stmt = $db->prepare("SELECT * FROM tareas WHERE id = ?");
-    $stmt->execute([$id]);
+    $stmt = $db->prepare("SELECT * FROM tareas WHERE id = ? AND user_id = ?");
+    $stmt->execute([$_GET['id'], $_SESSION['user_id']]);
     $tarea = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-// Si el usuario guardó los cambios
-if (isset($_POST['actualizar'])) {
-    $id = $_POST['id'];
-    $nombre = $_POST['nombre'];
-    $stmt = $db->prepare("UPDATE tareas SET nombre = ? WHERE id = ?");
-    $stmt->execute([$nombre, $id]);
+// Si la tarea no existe o no pertenece al usuario, redirigimos
+if (!$tarea) {
     header('Location: index.php');
+    exit();
+}
+
+// Si el usuario guarda cambios
+if (isset($_POST['actualizar'])) {
+    $stmt = $db->prepare("UPDATE tareas SET nombre = ? WHERE id = ? AND user_id = ?");
+    $stmt->execute([$_POST['nombre'], $_POST['id'], $_SESSION['user_id']]);
+    header('Location: index.php');
+    exit();
 }
 ?>
 
