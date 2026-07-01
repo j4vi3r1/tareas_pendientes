@@ -4,7 +4,7 @@ La aplicación utiliza **SQLite** para la persistencia de datos. La estructura s
 ## Esquema de la tabla 'usuarios'
 - **id**: `INTEGER` (Primary Key, Autoincremental)
 - **username**: `TEXT` (No permite valores nulos)
-- **correo**: `TEXT` (No formatos de correo invalidos)
+- **correo**: `TEXT` (No permite valores nulos)
 - **password**: `TEXT` (No permite valores nulos, almacena la contraseña cifrada mediante `password_hash`)
 
 ## Esquema de la tabla 'tareas'
