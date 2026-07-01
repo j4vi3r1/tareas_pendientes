@@ -34,7 +34,10 @@ if (isset($_POST['actualizar'])) {
     <title>Editar Tarea</title>
 </head>
 <body class="container mt-5">
+    <?php include 'menu.php'; ?> <!-- Aquí lo agregas -->
+
     <h2>Editar Tarea</h2>
+
     <form action="editar.php" method="POST">
         <input type="hidden" name="id" value="<?php echo $tarea['id']; ?>">
         <div class="mb-3">

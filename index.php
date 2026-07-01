@@ -1,6 +1,6 @@
 <?php
 // index.php
-require_once 'auth.php'; // Protege la página
+require_once 'auth.php'; // Protege la página[cite: 1, 2, 3]
 $db = require_once 'db.php'; 
 ?>
 <!DOCTYPE html>
@@ -12,40 +12,49 @@ $db = require_once 'db.php';
 </head>
 <body class="container mt-5">
 
-    <div class="d-flex justify-content-between align-items-center">
-        <h1 class="text-primary">Mi Gestor de Tareas</h1>
-        <a href="logout.php" class="btn btn-outline-danger btn-sm">Cerrar Sesión</a>
+    <?php include 'menu.php'; ?>
+
+    <!-- CREAR: Formulario centralizado -->
+    <div class="card p-4 mb-4 shadow-sm">
+        <h4 class="mb-3">Crear Nueva Tarea</h4>
+        <form action="process.php" method="POST" class="row g-2">
+            <div class="col-md-10">
+                <input type="text" name="nombre" class="form-control" placeholder="Escribe aquí tu tarea..." required>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" name="agregar" class="btn btn-primary w-100">Crear</button>
+            </div>
+        </form>
     </div>
 
-    <form action="process.php" method="POST" class="row g-3 mt-4 justify-content-center">
-        <div class="col-auto w-75">
-            <input type="text" name="nombre" class="form-control" placeholder="Nueva tarea..." required>
-        </div>
-        <div class="col-auto">
-            <button type="submit" name="agregar" class="btn btn-primary">Añadir</button>
-        </div>
-    </form>
-
-    <h2 class="mt-5">Tus Pendientes</h2>
-    <table class="table table-hover mt-3">
+    <!-- LEER, MODIFICAR Y ELIMINAR: Tabla de tareas -->
+    <h2>Tus Tareas</h2>
+    <table class="table table-hover mt-3 shadow-sm">
+        <thead class="table-light">
+            <tr>
+                <th>Tarea</th>
+                <th>Estado</th>
+                <th class="text-center">Acciones</th>
+            </tr>
+        </thead>
         <tbody>
             <?php
-            // Filtramos tareas por el ID del usuario en sesión
+            // Consulta filtrada para que cada usuario vea solo sus tareas[cite: 1, 2, 3]
             $stmt = $db->prepare("SELECT * FROM tareas WHERE user_id = ? ORDER BY id DESC");
             $stmt->execute([$_SESSION['user_id']]);
             
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $estado = $row['estado'];
-                $icono = ($estado == 'completada') ? '✅' : '⏳';
                 $btn_txt = ($estado == 'completada') ? 'Desmarcar' : 'Completar';
-                $color_boton = ($estado == 'completada') ? 'btn-success' : 'btn-warning';
+                $color_btn = ($estado == 'completada') ? 'btn-success' : 'btn-warning';
                 
                 echo "<tr>
-                    <td class='align-middle'>$icono " . htmlspecialchars($row['nombre']) . "</td>
-                    <td class='text-end'>
-                        <a href='editar.php?id={$row['id']}' class='btn btn-sm btn-outline-primary'>Editar</a>
-                        <a href='process.php?cambiar_estado={$row['id']}&estado={$estado}' class='btn btn-sm $color_boton'>$btn_txt</a>
-                        <a href='process.php?eliminar={$row['id']}' class='btn btn-sm btn-outline-danger'>Eliminar</a>
+                    <td class='align-middle'>" . htmlspecialchars($row['nombre']) . "</td>
+                    <td class='align-middle'>" . ucfirst($estado) . "</td>
+                    <td class='text-center'>
+                        <a href='process.php?cambiar_estado={$row['id']}&estado={$estado}' class='btn btn-sm $color_btn'>$btn_txt</a>
+                        <a href='editar.php?id={$row['id']}' class='btn btn-sm btn-info text-white'>Editar</a>
+                        <a href='process.php?eliminar={$row['id']}' class='btn btn-sm btn-danger' onclick='return confirm(\"¿Seguro?\")'>Eliminar</a>
                     </td>
                 </tr>";
             }
