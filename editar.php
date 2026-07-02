@@ -22,7 +22,7 @@ if (!$tarea) {
 if (isset($_POST['actualizar'])) {
     $stmt = $db->prepare("UPDATE tareas SET nombre = ? WHERE id = ? AND user_id = ?");
     $stmt->execute([$_POST['nombre'], $_POST['id'], $_SESSION['user_id']]);
-    header('Location: index.php');
+    header('Location: tareas.php');
     exit();
 }
 ?>
