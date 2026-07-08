@@ -2,6 +2,7 @@
 // login.php
 session_start();
 $db = require_once 'db.php';
+require_once 'logger.php'; // Incluimos el sistema de logs
 
 // Si el usuario ya inició sesión, redirigir al index directamente
 if (isset($_SESSION['user_id'])) {
@@ -22,7 +23,11 @@ if (isset($_POST['ingresar'])) {
     // Verificamos contraseña
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['user_id'] = $user['id'];
-        header("Location: index.php"); // Redirige al portal de bienvenida/tareas
+        
+        // Registrar evento: Inicio de sesión
+        registrarLog($db, "iniciar sesion", "El usuario con email " . $email . " ha iniciado sesión.");
+        
+        header("Location: index.php"); 
         exit();
     } else {
         $error = "Correo o contraseña incorrectos.";
@@ -57,6 +62,10 @@ if (isset($_POST['ingresar'])) {
                 <div class="mb-3">
                     <label class="form-label">Contraseña</label>
                     <input type="password" name="password" id="passLogin" class="form-control" required>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="checkLogin" onclick="togglePass('passLogin')">
+                    <label class="form-check-label" for="checkLogin">Mostrar contraseña</label>
                 </div>
                 
                 <button type="submit" name="ingresar" class="btn btn-success w-100">Entrar</button>

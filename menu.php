@@ -32,6 +32,9 @@ if (isset($_SESSION['user_id'])) {
                 <li class="nav-item">
                     <a class="nav-link" href="tareas.php">Mis Tareas</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link text-muted" href="logs_view.php">Auditoría</a>
+                </li>
             </ul>
             
             <div class="navbar-nav">

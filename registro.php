@@ -1,8 +1,13 @@
 <?php
 // registro.php
-$db = require_once 'db.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+require_once 'db.php';
+require_once 'logger.php';
 
 $mensaje = '';
+
 if (isset($_POST['registrar'])) {
     $username = trim($_POST['username']);
     $email = trim($_POST['email']);
@@ -10,13 +15,15 @@ if (isset($_POST['registrar'])) {
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $mensaje = "<div class='alert alert-danger'>El formato del correo no es válido.</div>";
-    } elseif (!empty($username) && !empty($password)) {
-        $hash = password_hash($password, PASSWORD_DEFAULT);
+    } else {
         try {
-            $stmt = $db->prepare("INSERT INTO usuarios (username, email, password) VALUES (?, ?, ?)");
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $db->prepare("INSERT INTO usuarios (username, email, password, verificado) VALUES (?, ?, ?, 1)");
             $stmt->execute([$username, $email, $hash]);
-            header("Location: login.php?msg=exito");
-            exit();
+
+            registrarLog($db, "crear usuario", "Usuario registrado y verificado automáticamente: " . $username);
+            $mensaje = "<div class='alert alert-success'>Registro exitoso. Tu cuenta ya está activa.</div>";
+
         } catch (PDOException $e) {
             $mensaje = "<div class='alert alert-danger'>El usuario o correo ya existen.</div>";
         }
@@ -46,19 +53,14 @@ if (isset($_POST['registrar'])) {
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Contraseña</label>
-                    <input type="password" name="password" id="passRegistro" class="form-control" required>
+                    <input type="password" name="password" class="form-control" required>
                 </div>
-                
-                <button type="submit" name="registrar" class="btn btn-primary w-100">Registrarse</button>
+                <button type="submit" name="registrar" class="btn btn-primary w-100 mb-3">Registrarse</button>
+                <div class="text-center">
+                    <a href="login.php" class="btn btn-outline-secondary btn-sm">¿Ya tienes cuenta? Iniciar sesión</a>
+                </div>
             </form>
-            <p class="text-center mt-3">¿Ya tienes cuenta? <a href="login.php">Inicia sesión</a></p>
         </div>
     </div>
-    <script>
-        function togglePass(id) {
-            var x = document.getElementById(id);
-            x.type = (x.type === "password") ? "text" : "password";
-        }
-    </script>
 </body>
 </html>

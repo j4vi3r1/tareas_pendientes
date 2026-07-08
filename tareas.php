@@ -1,7 +1,12 @@
 <?php
-// index.php
-require_once 'auth.php'; // Protege la página[cite: 1, 2, 3]
+// tareas.php
+require_once 'auth.php'; // Protege la página
 $db = require_once 'db.php'; 
+require_once 'logger.php'; // 1. Importamos el archivo de logs
+
+// 2. Registramos el evento de "consultar registro"
+// Se ejecuta cada vez que el usuario entra a ver su lista de tareas
+registrarLog($db, "consultar registro", "El usuario visualizó su lista de tareas");
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -14,7 +19,6 @@ $db = require_once 'db.php';
 
     <?php include 'menu.php'; ?>
 
-    <!-- CREAR: Formulario centralizado -->
     <div class="card p-4 mb-4 shadow-sm">
         <h4 class="mb-3">Crear Nueva Tarea</h4>
         <form action="process.php" method="POST" class="row g-2">
@@ -27,7 +31,6 @@ $db = require_once 'db.php';
         </form>
     </div>
 
-    <!-- LEER, MODIFICAR Y ELIMINAR: Tabla de tareas -->
     <h2>Tus Tareas</h2>
     <table class="table table-hover mt-3 shadow-sm">
         <thead class="table-light">
@@ -39,7 +42,6 @@ $db = require_once 'db.php';
         </thead>
         <tbody>
             <?php
-            // Consulta filtrada para que cada usuario vea solo sus tareas[cite: 1, 2, 3]
             $stmt = $db->prepare("SELECT * FROM tareas WHERE user_id = ? ORDER BY id DESC");
             $stmt->execute([$_SESSION['user_id']]);
             
