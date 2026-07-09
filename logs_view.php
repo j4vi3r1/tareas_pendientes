@@ -1,21 +1,39 @@
 <?php
 // logs_view.php
-require_once 'auth.php';   // Protege la página de forma segura con tu archivo original
-require_once 'db.php';     // Carga la base de datos de forma global y segura
+require_once 'auth.php';   // Protege la página de forma segura
+require_once 'db.php';     // Carga la base de datos de forma global
 require_once 'logger.php'; // Importamos el sistema de logs
 
-// Registramos el evento de "consultar registro" (Punto 7.3 de la rúbrica)
+// Capturamos los datos del usuario actualmente logueado
+$usuario_actual_id = $_SESSION['user_id'] ?? null;
+$username_actual = $_SESSION['username'] ?? 'Usuario';
+
+// Registramos la consulta del log en la bitácora
 registrarLog($db, "consultar registro", "El usuario visualizó el registro de auditoría del sistema.");
 
-// TU CONSULTA ORIGINAL
-$query = "SELECT l.*, u.username 
-          FROM logs l 
-          LEFT JOIN usuarios u ON l.usuario_id = u.id 
-          ORDER BY l.id DESC";
-$stmt = $db->query($query);
+// CAPTURAMOS EL FILTRO DE LA URL (Por defecto muestra 'todos')
+$filtro = $_GET['ver'] ?? 'todos';
 
-// SOLUCIÓN CLAVE: Extraemos TODOS los registros juntos a un array de memoria de PHP
-// Esto evita que SQLite mantenga el puntero abierto y falle al renderizar con Bootstrap
+// CONFIGURAMOS LA CONSULTA DINÁMICA SEGÚN EL FILTRO
+if ($filtro === 'mis_logs' && $usuario_actual_id !== null) {
+    // Solo trae los registros que pertenezcan al usuario logueado
+    $query = "SELECT l.*, u.username 
+              FROM logs l 
+              LEFT JOIN usuarios u ON l.usuario_id = u.id 
+              WHERE l.usuario_id = ? 
+              ORDER BY l.id DESC";
+    $stmt = $db->prepare($query);
+    $stmt->execute([$usuario_actual_id]);
+} else {
+    // Trae absolutamente todos los registros (Historial Global)
+    $query = "SELECT l.*, u.username 
+              FROM logs l 
+              LEFT JOIN usuarios u ON l.usuario_id = u.id 
+              ORDER BY l.id DESC";
+    $stmt = $db->query($query);
+}
+
+// Extraemos los registros a memoria para renderizarlos de forma segura
 $todos_los_logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
@@ -34,8 +52,21 @@ $todos_los_logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <h2>Registro de Auditoría (Logs)</h2>
             <a href="index.php" class="btn btn-secondary btn-sm">Volver al Inicio</a>
         </div>
-        <p class="text-muted">Historial completo de eventos del sistema en orden cronológico.</p>
+        <p class="text-muted">Historial de eventos del sistema en orden cronológico.</p>
         
+        <div class="d-flex justify-content-start mb-3">
+            <div class="btn-group" role="group" aria-label="Filtro de Logs">
+                <a href="logs_view.php?ver=todos" 
+                   class="btn <?php echo ($filtro === 'todos') ? 'btn-primary active' : 'btn-outline-primary'; ?> fw-bold">
+                    🌐 Historial Global
+                </a>
+                <a href="logs_view.php?ver=mis_logs" 
+                   class="btn <?php echo ($filtro === 'mis_logs') ? 'btn-primary active' : 'btn-outline-primary'; ?> fw-bold">
+                    👤 Mis Acciones (<?php echo htmlspecialchars($username_actual); ?>)
+                </a>
+            </div>
+        </div>
+
         <div class="card shadow-sm border-0 mb-5">
             <div class="table-responsive rounded">
                 <table class="table table-hover align-middle mb-0 bg-white">
@@ -51,7 +82,7 @@ $todos_los_logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <tbody>
                         <?php if (!empty($todos_los_logs)): ?>
                             <?php foreach ($todos_los_logs as $row): 
-                                // Punto 7.1: Convertimos la fecha de la BD al formato estricto (DD/MM/YYYY, HH:MM:SS)
+                                // Formateamos la fecha al estándar local (DD/MM/YYYY, HH:MM:SS)
                                 $fecha_original = $row['fecha_hora'];
                                 $timestamp = strtotime($fecha_original);
                                 $fecha_formateada = ($timestamp !== false) ? date('d/m/Y, H:i:s', $timestamp) : date('d/m/Y, H:i:s');
@@ -83,7 +114,7 @@ $todos_los_logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php else: ?>
                         <tr>
                             <td colspan="5" class="text-center p-4 text-muted">
-                                No se encontraron registros en la bitácora todavía.
+                                No se encontraron acciones registradas para este filtro.
                             </td>
                         </tr>
                         <?php endif; ?>

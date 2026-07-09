@@ -1,3 +1,8 @@
 [2026-07-09 02:17:41] Usuario ID: Invitado | Evento: crear usuario | Detalle: Usuario registrado y verificado automáticamente: javier | IP Real Detectada: 190.211.249.220
 [2026-07-09 02:17:49] Usuario ID: 1 | Evento: iniciar sesion | Detalle: El usuario con email quezadajavier566@gmail.com ha iniciado sesión. | IP Real Detectada: 190.211.249.220
 [2026-07-09 02:18:23] Usuario ID: 1 | Evento: consultar registro | Detalle: El usuario visualizó el registro de auditoría del sistema. | IP Real Detectada: 190.211.249.220
+[2026-07-09 13:30:50] Usuario ID: 1 | Evento: iniciar sesion | Detalle: El usuario con email quezadajavier566@gmail.com ha iniciado sesión. | IP Real Detectada: 190.211.249.220
+[2026-07-09 13:30:52] Usuario ID: 1 | Evento: consultar registro | Detalle: El usuario visualizó el registro de auditoría del sistema. | IP Real Detectada: 190.211.249.220
+[2026-07-09 13:31:20] Usuario ID: 1 | Evento: cierre de sesion | Detalle: El usuario cerró su sesión actual. | IP Real Detectada: 190.211.249.220
+[2026-07-09 13:31:29] Usuario ID: 1 | Evento: iniciar sesion | Detalle: El usuario con email quezadajavier566@gmail.com ha iniciado sesión. | IP Real Detectada: 190.211.249.220
+[2026-07-09 13:31:32] Usuario ID: 1 | Evento: consultar registro | Detalle: El usuario visualizó el registro de auditoría del sistema. | IP Real Detectada: 190.211.249.220
