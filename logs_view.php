@@ -1,14 +1,22 @@
 <?php
 // logs_view.php
-require_once 'auth.php'; // Protege la página, solo usuarios logueados pueden ver los logs
-$db = require_once 'db.php';
+require_once 'auth.php';   // Protege la página de forma segura con tu archivo original
+require_once 'db.php';     // Carga la base de datos de forma global y segura
+require_once 'logger.php'; // Importamos el sistema de logs
 
-// Consulta para obtener los logs unidos con los nombres de usuario
+// Registramos el evento de "consultar registro" (Punto 7.3 de la rúbrica)
+registrarLog($db, "consultar registro", "El usuario visualizó el registro de auditoría del sistema.");
+
+// TU CONSULTA ORIGINAL
 $query = "SELECT l.*, u.username 
           FROM logs l 
           LEFT JOIN usuarios u ON l.usuario_id = u.id 
-          ORDER BY l.fecha_hora DESC";
+          ORDER BY l.id DESC";
 $stmt = $db->query($query);
+
+// SOLUCIÓN CLAVE: Extraemos TODOS los registros juntos a un array de memoria de PHP
+// Esto evita que SQLite mantenga el puntero abierto y falle al renderizar con Bootstrap
+$todos_los_logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -19,34 +27,66 @@ $stmt = $db->query($query);
 </head>
 <body class="bg-light">
 
+    <?php include 'menu.php'; ?>
+
     <div class="container mt-4">
-        <h2>Registro de Auditoría (Logs)</h2>
-        <p class="text-muted">Historial de eventos del sistema en orden cronológico.</p>
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h2>Registro de Auditoría (Logs)</h2>
+            <a href="index.php" class="btn btn-secondary btn-sm">Volver al Inicio</a>
+        </div>
+        <p class="text-muted">Historial completo de eventos del sistema en orden cronológico.</p>
         
-        <a href="index.php" class="btn btn-secondary mb-3">Volver al Inicio</a>
-        
-        <div class="card shadow-sm">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
+        <div class="card shadow-sm border-0 mb-5">
+            <div class="table-responsive rounded">
+                <table class="table table-hover align-middle mb-0 bg-white">
                     <thead class="table-dark">
                         <tr>
-                            <th>Fecha/Hora</th>
+                            <th>Fecha / Hora</th>
                             <th>Usuario</th>
                             <th>Evento</th>
-                            <th>Detalle</th>
-                            <th>IP</th>
+                            <th>Detalle Técnico (Tabla / ID)</th>
+                            <th>IP Cliente</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while($row = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
+                        <?php if (!empty($todos_los_logs)): ?>
+                            <?php foreach ($todos_los_logs as $row): 
+                                // Punto 7.1: Convertimos la fecha de la BD al formato estricto (DD/MM/YYYY, HH:MM:SS)
+                                $fecha_original = $row['fecha_hora'];
+                                $timestamp = strtotime($fecha_original);
+                                $fecha_formateada = ($timestamp !== false) ? date('d/m/Y, H:i:s', $timestamp) : date('d/m/Y, H:i:s');
+                            ?>
+                            <tr>
+                                <td class="fw-semibold">
+                                    <?php echo $fecha_formateada; ?>
+                                </td>
+                                
+                                <td>
+                                    <span class="badge <?php echo !empty($row['username']) ? 'bg-secondary' : 'bg-dark'; ?>">
+                                        <?php echo !empty($row['username']) ? htmlspecialchars($row['username']) : 'Sistema'; ?>
+                                    </span>
+                                </td>
+                                
+                                <td>
+                                    <span class="badge bg-info text-dark fw-bold">
+                                        <?php echo htmlspecialchars($row['evento']); ?>
+                                    </span>
+                                </td>
+                                
+                                <td class="text-muted" style="font-size: 0.9rem;">
+                                    <?php echo htmlspecialchars($row['detalle']); ?>
+                                </td>
+                                
+                                <td class="text-monospace"><?php echo htmlspecialchars($row['ip_host_client']); ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
                         <tr>
-                            <td><?php echo $row['fecha_hora']; ?></td>
-                            <td><?php echo $row['username'] ?? 'Sistema'; ?></td>
-                            <td><span class="badge bg-info"><?php echo $row['evento']; ?></span></td>
-                            <td><?php echo htmlspecialchars($row['detalle']); ?></td>
-                            <td><?php echo $row['ip_host_client']; ?></td>
+                            <td colspan="5" class="text-center p-4 text-muted">
+                                No se encontraron registros en la bitácora todavía.
+                            </td>
                         </tr>
-                        <?php endwhile; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
